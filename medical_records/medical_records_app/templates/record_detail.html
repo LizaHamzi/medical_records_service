@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<title>Détails du dossier médical</title>
+
+<style>
+    .content-wrapper {
+        max-width: 1200px; /* Largeur élargie */
+        margin: 20px auto;
+        padding: 30px;
+        background-color: #f5f5dc;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: row; /* Pour placer l'image à gauche */
+    }
+
+    .page-title {
+        font-size: 28px;
+        color: #444;
+        margin-bottom: 20px;
+        font-weight: bold;
+        text-align: center;
+        width: 100%;
+    }
+
+    /* Conteneur des détails */
+    .details-container {
+        display: flex;
+        flex-direction: column;
+        background-color: #f5f5dc;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-top: 10px;
+        flex-grow: 1;
+    }
+
+    /* Conteneur pour l'image et infos patient */
+    .top-section {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    /* Informations du patient */
+    .patient-info {
+        display: block;
+        margin-bottom: 25px;
+        flex: 1;
+    }
+
+    .patient-info p {
+        font-size: 16px;
+        margin-bottom: 10px;
+        color: #555;
+    }
+
+    .patient-info strong {
+        font-weight: bold;
+        color: #333;
+    }
+
+    /* Image du patient alignée à droite */
+    .patient-image {
+        margin-left: 20px;
+        width: 150px;
+        height: 150px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .patient-image img {
+        border-radius: 8px;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* Image 'record' à gauche */
+    .record-image {
+        width: 400px; /* Taille ajustée de l'image record */
+        height: auto;
+        margin-right: 20px;
+        object-fit: cover;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-container {
+        text-align: center;
+        margin-top: 30px;
+    }
+
+    .btn {
+        display: inline-block;
+        background-color: #555;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+        margin: 0 5px;
+        transition: background-color 0.3s ease;
+        font-size: 16px;
+    }
+
+    .btn:hover {
+        background-color: black;
+        color: #fff;
+    }
+
+    .btn-confirm {
+        background-color: #555;
+    }
+
+    .btn-cancel {
+        background-color: #555;
+    }
+
+    .btn-confirm:hover {
+        background-color: black;
+        color: #fff;
+    }
+
+    .btn-cancel:hover {
+        background-color: black;
+        color: #fff;
+    }
+</style>
+
+<div class="content-wrapper">
+    <!-- Image 'record' à gauche -->
+    <img src="{% static 'images/record.jpg' %}" alt="Record Image" class="record-image">
+
+    <div style="flex-grow: 1;">
+        <h5 class="page-title">Détails du dossier médical</h5>
+
+        <!-- Section du haut avec la photo et les premières infos -->
+        <div class="top-section">
+            <!-- Informations du patient à gauche -->
+            <div class="patient-info">
+                <p><strong>Nom :</strong> {{ patient.nom }}</p>
+                <p><strong>Prénom :</strong> {{ patient.prenom }}</p>
+                <p><strong>Email :</strong> {{ patient.email }}</p>
+                <p><strong>Téléphone :</strong> {{ patient.telephone }}</p>
+            </div>
+
+            <!-- Photo du patient alignée à droite -->
+            <div class="patient-image">
+                {% if patient.image %}
+                    <img src="http://localhost:8000/media/{{ patient.image }}" alt="Photo du patient">
+                {% else %}
+                    <p>Aucune image disponible</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Section du bas avec les autres informations -->
+        <div class="details-container">
+            <p><strong>Numéro RAMQ :</strong> {{ patient.ramq }}</p>
+            <p><strong>Date de naissance :</strong> {{ patient.date_naissance }}</p>
+            <p><strong>Genre :</strong> {{ patient.genre }}</p>
+            <p><strong>Ville de naissance :</strong> {{ patient.ville_naissance }}</p>
+            <p><strong>Adresse :</strong> {{ patient.adresse }}</p>
+            <p><strong>Description :</strong> {{ record.description }}</p>
+            <p><strong>Diagnostic :</strong> {{ record.diagnostic }}</p>
+            <p><strong>Traitement :</strong> {{ record.treatment }}</p>
+            <p><strong>Date de suivi :</strong> {{ record.follow_up_date }}</p>
+            <p><strong>Date de création :</strong> {{ record.created_at }}</p>
+            <p><strong>Dernière mise à jour :</strong> {{ record.updated_at }}</p>
+            <p><strong>Doctor :</strong> {{ record.doctor.nom }} {{ record.doctor.prenom }}</p>
+        </div>
+
+        <!-- Boutons en bas -->
+        <div class="btn-container">
+            <a href="{% url 'update_medical_record' record.id %}?email={{ doctor_email }}" class="btn btn-confirm">Modifier</a>
+            <a href="{% url 'doctor_medical_record_list' %}?email={{ doctor_email }}" class="btn btn-cancel">Retour</a>
+            <a href="{% url 'view_archives' record.id %}?email={{ doctor_email }}" class="btn btn-cancel">Archives</a>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

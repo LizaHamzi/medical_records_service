@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<title>Mettre à jour le dossier médical</title>
+<style>
+    .content-wrapper {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 30px;
+        background-color: #f5f5dc;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .page-title {
+        font-size: 28px;
+        color: #444;
+        margin-bottom: 20px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .form-container {
+        margin-top: 20px;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    form label {
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: #444;
+    }
+
+    form input, form textarea, form select {
+        width: 100%;
+        max-width: 100%; /* Prend toute la largeur disponible */
+        padding: 10px;
+        margin-bottom: 15px; /* Espace entre les champs */
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        font-size: 16px;
+    }
+
+    form textarea {
+        height: 100px; /* Hauteur par défaut pour les textareas */
+        resize: vertical; /* Permet à l'utilisateur d'ajuster la hauteur si nécessaire */
+    }
+
+    button[type="submit"] {
+        background-color: #555;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+        margin-top: 20px;
+        align-self: center;
+    }
+
+    button[type="submit"]:hover {
+        background-color: black;
+    }
+
+    .btn-cancel {
+        display: inline-block;
+        background-color: #555;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .btn-cancel:hover {
+        background-color: black;
+        color: #fff;
+        text-decoration: none;
+    }
+
+    .btn-container {
+        text-align: center;
+        margin-top: 10px;
+    }
+</style>
+
+<div class="content-wrapper">
+    <h5 class="page-title">Mettre à jour le dossier médical</h5>
+    <div class="form-container">
+        <form method="post">
+            {% csrf_token %}
+            <label for="description">Description:</label>
+            {{ form.description }}
+            
+            <label for="diagnostic">Diagnostic:</label>
+            {{ form.diagnostic }}
+            
+            <label for="treatment">Treatment:</label>
+            {{ form.treatment }}
+            
+            <label for="follow_up_date">Follow up date:</label>
+            {{ form.follow_up_date }}
+            
+            <button type="submit">Mettre à jour</button>
+        </form>
+    </div>
+    <div class="btn-container">
+        <a href="{% url 'doctor_medical_record_list' %}?email={{ doctor_email }}" class="btn-cancel">Retour</a>
+    </div>
+</div>
+{% endblock %}

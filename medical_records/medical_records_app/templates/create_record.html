@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<title>Créer un dossier médical</title>
+
+<style>
+    .content-wrapper {
+        max-width: 1000px; /* Largeur maximale pour le formulaire */
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #f5f5dc;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    /* Section pour le formulaire à gauche */
+    .form-container {
+        flex: 2;
+        margin-right: 20px; /* Ajout d'un espace entre le formulaire et l'image */
+    }
+
+    h2 {
+        text-align: center;
+        font-size: 24px;
+        color: #444;
+        margin-bottom: 20px;
+        font-weight: bold;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .form-group {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .form-field {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 48%; /* Ajustement pour s'assurer que deux champs tiennent sur une ligne */
+    }
+
+    .form-field label {
+        font-size: 14px;
+        font-weight: bold;
+        color: #555;
+        margin-bottom: 5px;
+    }
+
+    .form-field input,
+    .form-field select,
+    .form-field textarea {
+        width: 100%;
+        padding: 6px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        font-size: 14px;
+    }
+
+    /* Champs texte (textarea) sur une ligne complète */
+    .form-full-width {
+        flex: 1 100%; /* Prend toute la largeur */
+    }
+
+    .form-full-width textarea {
+        width: 100%; /* Prend toute la largeur */
+        height: 60px; /* Réduction de la hauteur */
+    }
+
+    .form-date-file {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px; /* Espace entre l'upload de l'image et celui de la voix */
+    }
+
+    .alert {
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        font-size: 14px;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    button[type="submit"], .btn-cancel {
+        background-color: #555;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+        text-align: center;
+    }
+
+    button[type="submit"]:hover, .btn-cancel:hover {
+        background-color: black;
+        color: #fff;
+        text-decoration: none;
+    }
+
+    .image-container {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .image-container img {
+        max-width: 100%;
+        height: 90%;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+<div class="content-wrapper">
+    <!-- Formulaire à gauche -->
+    <div class="form-container">
+        <h2>Créer un dossier médical</h2>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <div class="form-field">
+                    {{ form.patient_nom.label }} 
+                    {{ form.patient_nom }}
+                </div>
+                <div class="form-field">
+                    {{ form.patient_prenom.label }} 
+                    {{ form.patient_prenom }}
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-field">
+                    {{ form.patient_email.label }} 
+                    {{ form.patient_email }}
+                </div>
+                <div class="form-field">
+                    {{ form.patient_ramq.label }} 
+                    {{ form.patient_ramq }}
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-field">
+                    {{ form.patient_genre.label }} 
+                    {{ form.patient_genre }}
+                </div>
+                <div class="form-field">
+                    {{ form.patient_ville_naissance.label }} 
+                    {{ form.patient_ville_naissance }}
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-field">
+                    {{ form.patient_adresse.label }} 
+                    {{ form.patient_adresse }}
+                </div>
+                <div class="form-field">
+                    {{ form.patient_telephone.label }} 
+                    {{ form.patient_telephone }}
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-field">
+                    {{ form.patient_password.label }} 
+                    {{ form.patient_password }}
+                </div>
+                <div class="form-field">
+                    {{ form.patient_date_naissance.label }} 
+                    {{ form.patient_date_naissance }}
+                </div>
+            </div>
+            
+            
+            <div class="form-group form-date-file">
+                <div class="form-field">
+                    {{ form.patient_image.label }} 
+                    {{ form.patient_image }}
+                </div>
+                <div class="form-field">
+                    {{ form.patient_voice_recording.label }} 
+                    {{ form.patient_voice_recording }}
+                </div>
+                
+            </div>
+
+            <div class="form-group">
+                <div class="form-field form-full-width">
+                    {{ form.description.label }} 
+                    {{ form.description }}
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-field form-full-width">
+                    {{ form.diagnostic.label }} 
+                    {{ form.diagnostic }}
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-field form-full-width">
+                    {{ form.treatment.label }} 
+                    {{ form.treatment }}
+                </div>
+            </div>
+
+            
+            
+            <div class="button-group">
+                <button type="submit">Créer</button>
+                <a href="{% url 'doctor_medical_record_list' %}?email={{ doctor_email }}" class="btn-cancel">Retour</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Image à droite -->
+    <div class="image-container">
+        <img src="{% static 'images/add_records.jpg' %}" alt="Add Record Image">
+    </div>
+</div>
+
+{% if form.errors %}
+    <div class="alert">
+        <ul>
+            {% for field, errors in form.errors.items %}
+                <li>{{ field }}: {{ errors }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+
+
+{% endblock %}

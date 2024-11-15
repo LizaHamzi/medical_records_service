@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-sm p-4 rounded">
+        <h2 class="text-center mb-4">Version {{ archive.version }} du dossier médical</h2>
+        
+        <div class="info-section mb-4">
+            <p><strong>Description :</strong></p>
+            <p class="text-muted">{{ archive.description|default:"Aucune description" }}</p>
+        </div>
+
+        <div class="info-section mb-4">
+            <p><strong>Diagnostic :</strong></p>
+            <p class="text-muted">{{ archive.diagnostic|default:"Aucun diagnostic" }}</p>
+        </div>
+
+        <div class="info-section mb-4">
+            <p><strong>Traitement :</strong></p>
+            <p class="text-muted">{{ archive.treatment|default:"Aucun traitement" }}</p>
+        </div>
+
+        <div class="info-section mb-4">
+            <p><strong>Date de suivi :</strong></p>
+            <p class="text-muted">{{ archive.follow_up_date|default:"Non précisée" }}</p>
+        </div>
+
+        <div class="info-section mb-4">
+            <p><strong>Mise à jour le :</strong></p>
+            <p class="text-muted">{{ archive.updated_at|date:"d M Y à H:i" }}</p>
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <a href="{% url 'revert_to_version' archive.id %}" class="btn btn-warning">Revenir à cette version</a>
+            <a href="{% url 'medical_record_detail' archive.original_record.id %}" class="btn btn-secondary">Retour au dossier médical</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        background-color: #f8f8ea;
+        border: none;
+    }
+
+    h2 {
+        font-size: 28px;
+        font-weight: bold;
+        color: #333;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .info-section {
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 10px;
+    }
+
+    .info-section:last-child {
+        border-bottom: none;
+    }
+
+    p {
+        font-size: 16px;
+        color: #555;
+    }
+
+    .text-muted {
+        color: #6c757d;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-warning {
+        background-color: #555;
+        color: white;
+        border-color: #555;
+    }
+
+    .btn-warning:hover {
+        background-color: black;
+        border-color: black;
+        color: white;
+    }
+
+    .btn-secondary {
+        background-color: #555;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: black;
+        color: white;
+    }
+</style>
+{% endblock %}

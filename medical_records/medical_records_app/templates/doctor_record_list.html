@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="content-wrapper">
+    <h5 class="welcome-text">Bienvenue Doctor {{ doctor_name }} !</h5>
+
+    <form method="get" action="{% url 'doctor_medical_record_list' %}" class="search-form">
+        <input type="text" name="query" class="search-input" placeholder="Rechercher un patient..." />
+        <button type="submit" class="search-button">Rechercher</button>
+    </form>
+
+    <h2 class="list-title">Liste des dossiers médicaux</h2>
+
+    <a href="{% url 'create_medical_record' %}?email={{ doctor_email }}" class="btn-create">Créer un nouveau dossier</a>
+
+    <ul class="record-list">
+        {% for record in records %}
+        <li class="record-item">
+            Patient: {{ record.patient.nom }} {{ record.patient.prenom }}  
+            <a href="{% url 'medical_record_detail' record.id %}" class="details-link">Détails</a> 
+            <a href="#" class="delete-link" data-record-id="{{ record.id }}" data-patient-name="{{ record.patient.nom }} {{ record.patient.prenom }}">Supprimer</a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+
+<!-- Boîte de dialogue modale pour la confirmation -->
+<div class="modal" id="modal">
+    <div class="modal-box">
+        <div class="modal-content">
+            <h5>Confirmer la suppression</h5>
+            <p id="deleteMessage">Êtes-vous sûr de vouloir supprimer le dossier médical de Hamzi Ouiza ?</p>
+            <form id="deleteForm" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn-confirm">Oui, supprimer</button>
+                <button type="button" class="btn-cancel" onclick="closeModal()">Annuler</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    document.querySelectorAll('.delete-link').forEach(link => {
+    link.addEventListener('click', function(event) {
+        event.preventDefault();
+        const recordId = this.getAttribute('data-record-id');
+        const patientName = this.getAttribute('data-patient-name');
+
+        // Display the confirmation message with the patient's name
+        document.getElementById('deleteMessage').textContent = 
+            `Êtes-vous sûr de vouloir supprimer le dossier médical de ${patientName} ?`;
+
+        // Update the form action to send the delete request to the correct URL
+        document.getElementById('deleteForm').action = 
+            `{% url 'delete_medical_record' 0 %}`.replace('0', recordId);
+
+        // Show the modal dialog
+        document.getElementById('modal').style.display = 'flex';
+    });
+});
+
+function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+}
+
+// Optional: If you want to close the modal by clicking outside of it
+document.getElementById('modal').addEventListener('click', function(event) {
+    if (event.target === this) {
+        closeModal();
+    }
+});
+
+</script>
+
+<style>
+    .content-wrapper {
+        max-width: 900px;
+        margin: 20px auto;
+        padding: 0 15px;
+        color: #333;
+    }
+
+    .welcome-text {
+        font-size: 20px;
+        margin-bottom: 15px;
+        color: #555;
+        font-weight: 600;
+    }
+
+    .search-form {
+        display: flex;
+        margin-bottom: 25px;
+    }
+
+    .search-input {
+        flex-grow: 1;
+        padding: 10px;
+        border-radius: 5px 0 0 5px;
+        border: 1px solid #ddd;
+        font-size: 16px;
+    }
+
+    .search-button {
+        background-color: #555;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 0 5px 5px 0;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    .search-button:hover {
+        background-color: #555;
+    }
+
+    .list-title {
+        font-size: 26px;
+        margin-top: 20px;
+        margin-bottom: 25px;
+        color: #222;
+        border-bottom: 2px solid black;
+        padding-bottom: 5px;
+    }
+
+    .btn-create {
+        display: inline-block;
+        background-color: #555;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+        margin-bottom: 25px;
+        font-size: 16px;
+    }
+
+    .btn-create:hover {
+        background-color: black;
+        color: #fff;
+    }
+
+    .record-list {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .record-item {
+        background: #f8f9fa;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        border-left: 5px solid #555;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background-color 0.3s ease;
+    }
+
+    .record-item:hover {
+        background-color: #e2e6ea;
+    }
+
+    .details-link {
+        color: #168b9d;
+        font-weight: 500;
+        text-decoration: none;
+        margin-right: 15px;
+    }
+
+    .details-link:hover {
+        color: #168b9d;
+        text-decoration: underline;
+    }
+
+    .delete-link {
+        color: #dc3545;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .delete-link:hover {
+        color: #c82333;
+        text-decoration: underline;
+    }
+
+    .modal {
+    display: none; /* Hide the modal initially */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+}
+
+.modal-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.modal-content {
+    background: #f5f5dc;
+    padding: 25px;
+    border-radius: 8px;
+    text-align: center;
+    max-width: 450px;
+    width: 90%;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+    .btn-confirm, .btn-cancel {
+        display: inline-block;
+        padding: 10px 20px;
+        border-radius: 5px;
+        margin: 10px 5px;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    .btn-confirm {
+        background-color: #dc3545;
+        color: #fff;
+        border: none;
+    }
+
+    .btn-cancel {
+        background-color: #555;
+        color: #fff;
+        border: none;
+    }
+
+    .btn-confirm:hover {
+        background-color: #c82333;
+    }
+
+    .btn-cancel:hover {
+        background-color: black;
+    }
+</style>
+
+{% endblock %}
