@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dossier Médical</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+            color: #333;
+            font-size: 16px;
+        }
+        h1 {
+            text-align: center;
+            color: #0056b3;
+        }
+        h2 {
+            text-align: center;
+            color: #0056b3;
+            margin-bottom: 10px;
+        }
+        h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #666;
+        }
+        .photo-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 200px;
+            height: 150px;
+            padding: 5px;
+            text-align: left;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section-title {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 5px;
+            color: #0056b3;
+        }
+        .section-content p {
+            margin: 5px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dossier Médical</h1>
+    <h2>Patient: {{ patient.nom }} {{ patient.prenom }}</h2>
+    <h3>Médecin: {{ doctor_name }}</h3>
+
+    <!-- Conteneur pour la photo en haut à droite -->
+    <div class="photo-container">
+        {% if patient.image %}
+            <img src="http://localhost:8000/media/{{ patient.image }}" alt="Photo du patient" style="max-width: 100%; height: auto;">
+        {% else %}
+            <p>Aucune image</p>
+        {% endif %}
+    </div>
+
+    <div class="section">
+        <div class="section-title">Informations du patient :</div>
+        <div class="section-content">
+            <p><strong>Email :</strong> {{ patient.email }}</p>
+            <p><strong>Numéro RAMQ :</strong> {{ patient.ramq }}</p>
+            <p><strong>Date de naissance :</strong> {{ patient.date_naissance }}</p>
+            <p><strong>Adresse :</strong> {{ patient.adresse }}</p>
+            <p><strong>Téléphone :</strong> {{ patient.telephone }}</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Détails du dossier médical :</div>
+        <div class="section-content">
+            <p><strong>Description :</strong> {{ record.description }}</p>
+            <p><strong>Diagnostic :</strong> {{ record.diagnostic }}</p>
+            <p><strong>Traitement :</strong> {{ record.treatment }}</p>
+            <p><strong>Date du prochain suivi :</strong> {{ record.follow_up_date }}</p>
+            <p><strong>Créé le :</strong> {{ record.created_at }}</p>
+            <p><strong>Dernière mise à jour :</strong> {{ record.updated_at }}</p>
+        </div>
+    </div>
+</body>
+</html>

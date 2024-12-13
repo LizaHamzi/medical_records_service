@@ -16,9 +16,12 @@
     <ul class="record-list">
         {% for record in records %}
         <li class="record-item">
-            Patient: {{ record.patient.nom }} {{ record.patient.prenom }}  
-            <a href="{% url 'medical_record_detail' record.id %}" class="details-link">Détails</a> 
-            <a href="#" class="delete-link" data-record-id="{{ record.id }}" data-patient-name="{{ record.patient.nom }} {{ record.patient.prenom }}">Supprimer</a>
+            <span>Patient: {{ record.patient.nom }} {{ record.patient.prenom }}</span>
+            <div>
+                <a href="{% url 'medical_record_detail' record.id %}" class="details-link">Détails</a>
+                <a href="{% url 'download_medical_record' record.id %}" class="download-link">Télécharger</a>
+                <a href="#" class="delete-link" data-record-id="{{ record.id }}" data-patient-name="{{ record.patient.nom }} {{ record.patient.prenom }}">Supprimer</a>
+            </div>
         </li>
         {% endfor %}
     </ul>
@@ -29,7 +32,7 @@
     <div class="modal-box">
         <div class="modal-content">
             <h5>Confirmer la suppression</h5>
-            <p id="deleteMessage">Êtes-vous sûr de vouloir supprimer le dossier médical de Hamzi Ouiza ?</p>
+            <p id="deleteMessage">Êtes-vous sûr de vouloir supprimer le dossier médical de ?</p>
             <form id="deleteForm" method="post">
                 {% csrf_token %}
                 <button type="submit" class="btn-confirm">Oui, supprimer</button>
@@ -39,105 +42,106 @@
     </div>
 </div>
 
-
 <script>
     document.querySelectorAll('.delete-link').forEach(link => {
-    link.addEventListener('click', function(event) {
-        event.preventDefault();
-        const recordId = this.getAttribute('data-record-id');
-        const patientName = this.getAttribute('data-patient-name');
+        link.addEventListener('click', function(event) {
+            event.preventDefault();
+            const recordId = this.getAttribute('data-record-id');
+            const patientName = this.getAttribute('data-patient-name'); // Récupère le nom du patient
 
-        // Display the confirmation message with the patient's name
-        document.getElementById('deleteMessage').textContent = 
-            `Êtes-vous sûr de vouloir supprimer le dossier médical de ${patientName} ?`;
+            // Afficher le message de confirmation avec le nom du patient
+            document.getElementById('deleteMessage').textContent =
+                `Êtes-vous sûr de vouloir supprimer le dossier médical de ${patientName} ?`;
 
-        // Update the form action to send the delete request to the correct URL
-        document.getElementById('deleteForm').action = 
-            `{% url 'delete_medical_record' 0 %}`.replace('0', recordId);
+            // Mettre à jour l'action du formulaire pour envoyer la requête de suppression
+            document.getElementById('deleteForm').action =
+                `{% url 'delete_medical_record' 0 %}`.replace('0', recordId);
 
-        // Show the modal dialog
-        document.getElementById('modal').style.display = 'flex';
+            // Afficher la boîte modale
+            document.getElementById('modal').style.display = 'flex';
+        });
     });
-});
 
-function closeModal() {
-    document.getElementById('modal').style.display = 'none';
-}
-
-// Optional: If you want to close the modal by clicking outside of it
-document.getElementById('modal').addEventListener('click', function(event) {
-    if (event.target === this) {
-        closeModal();
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
     }
-});
 
+    // Fermer la boîte modale en cliquant à l'extérieur
+    document.getElementById('modal').addEventListener('click', function(event) {
+        if (event.target === this) {
+            closeModal();
+        }
+    });
 </script>
 
 <style>
     .content-wrapper {
         max-width: 900px;
-        margin: 20px auto;
-        padding: 0 15px;
+        margin: 30px auto;
+        padding: 0 20px;
         color: #333;
     }
 
     .welcome-text {
-        font-size: 20px;
-        margin-bottom: 15px;
+        font-size: 22px;
+        margin-bottom: 20px;
         color: #555;
         font-weight: 600;
     }
 
     .search-form {
         display: flex;
-        margin-bottom: 25px;
+        margin-bottom: 30px;
+        gap: 10px;
     }
 
     .search-input {
         flex-grow: 1;
-        padding: 10px;
+        padding: 12px;
         border-radius: 5px 0 0 5px;
         border: 1px solid #ddd;
         font-size: 16px;
     }
 
     .search-button {
-        background-color: #555;
+        background-color: black;
         color: #fff;
         border: none;
-        padding: 10px 20px;
+        padding: 12px 20px;
         border-radius: 0 5px 5px 0;
         cursor: pointer;
         font-size: 16px;
     }
 
     .search-button:hover {
-        background-color: #555;
+        background-color: #2e7590;
     }
 
     .list-title {
-        font-size: 26px;
+        font-size: 28px;
         margin-top: 20px;
-        margin-bottom: 25px;
+        margin-bottom: 30px;
         color: #222;
-        border-bottom: 2px solid black;
+        border-bottom: 2px solid #000;
         padding-bottom: 5px;
+        text-align: center;
     }
 
     .btn-create {
         display: inline-block;
-        background-color: #555;
+        background-color: black;
         color: #fff;
-        padding: 10px 20px;
+        padding: 12px 25px;
         border-radius: 5px;
         text-decoration: none;
-        margin-bottom: 25px;
+        margin-bottom: 30px;
         font-size: 16px;
     }
 
     .btn-create:hover {
-        background-color: black;
+        background-color: #2e7590;
         color: #fff;
+        text-decoration: none;
     }
 
     .record-list {
@@ -149,29 +153,37 @@ document.getElementById('modal').addEventListener('click', function(event) {
     .record-item {
         background: #f8f9fa;
         padding: 15px;
-        margin-bottom: 15px;
+        margin-bottom: 20px;
         border-radius: 5px;
-        border-left: 5px solid #555;
+        border-left: 5px solid black;
         display: flex;
         justify-content: space-between;
         align-items: center;
         transition: background-color 0.3s ease;
     }
+    .record-item div a {
+    margin-right: 15px; 
+}
+
+.record-item div a:last-child {
+    margin-right: 0; 
+}
+
 
     .record-item:hover {
-        background-color: #e2e6ea;
+        background-color: #f1f1f1;
     }
 
     .details-link {
-        color: #168b9d;
+        color: #2e7590;
         font-weight: 500;
         text-decoration: none;
         margin-right: 15px;
     }
 
     .details-link:hover {
-        color: #168b9d;
         text-decoration: underline;
+        color: #168b9d;
     }
 
     .delete-link {
@@ -182,42 +194,42 @@ document.getElementById('modal').addEventListener('click', function(event) {
     }
 
     .delete-link:hover {
-        color: #c82333;
         text-decoration: underline;
+        color: #dc3545;
     }
 
     .modal {
-    display: none; /* Hide the modal initially */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    justify-content: center;
-    align-items: center;
-    z-index: 1050;
-}
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        justify-content: center;
+        align-items: center;
+        z-index: 1050;
+    }
 
-.modal-box {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-}
+    .modal-box {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+    }
 
-.modal-content {
-    background: #f5f5dc;
-    padding: 25px;
-    border-radius: 8px;
-    text-align: center;
-    max-width: 450px;
-    width: 90%;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-}
+    .modal-content {
+        background: #fff;
+        padding: 25px;
+        border-radius: 8px;
+        text-align: center;
+        max-width: 450px;
+        width: 90%;
+    }
 
-    .btn-confirm, .btn-cancel {
+    .btn-confirm,
+    .btn-cancel {
         display: inline-block;
         padding: 10px 20px;
         border-radius: 5px;
@@ -233,7 +245,7 @@ document.getElementById('modal').addEventListener('click', function(event) {
     }
 
     .btn-cancel {
-        background-color: #555;
+        background-color: black;
         color: #fff;
         border: none;
     }
@@ -243,8 +255,17 @@ document.getElementById('modal').addEventListener('click', function(event) {
     }
 
     .btn-cancel:hover {
-        background-color: black;
+        background-color: #2e7590;
     }
-</style>
+    .download-link {
+    color: #007bff;
+    font-weight: 500;
+    text-decoration: none;
+}
+.download-link:hover {
+    text-decoration: underline;
+    color: #0056b3;
+}
 
+</style>
 {% endblock %}

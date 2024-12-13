@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+{% block title %}Image Chat{% endblock %}
+
+{% block content %}
+<style>
+    .image-chat-container {
+        display: flex;
+        width: 100%;
+        margin: 2rem auto;
+        height: 600px;
+        background: linear-gradient(to bottom, #ffffff, #f1f1f1);
+        border-radius: 10px;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        font-family: Arial, sans-serif;
+    }
+
+    .image-viewer {
+        flex: 1.2;
+        padding: 1rem;
+        background: #f9f9f9;
+        border-right: 2px solid #ddd;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+    }
+
+    .image-preview {
+        border: 2px solid #ccc;
+        margin-top: 1rem;
+        background: #ffffff;
+        width: 100%;
+        height: calc(100% - 4rem);
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .chat-box {
+        flex: 1.8;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        background: #ffffff;
+    }
+
+    #chatBox {
+        flex: 1;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        padding: 1rem;
+        overflow-y: auto;
+        margin-bottom: 1rem;
+        background: #f9f9f9;
+    }
+
+    #chatBox div {
+        margin-bottom: 0.5rem;
+        padding: 0.8rem;
+        border-radius: 8px;
+        font-size: 1rem;
+    }
+
+    #chatBox .user-message {
+        background: #dbeeff;
+        align-self: flex-end;
+        font-weight: bold;
+    }
+
+    #chatBox .bot-message {
+        background: #eef1f5;
+        align-self: flex-start;
+        font-weight: bold;
+    }
+
+    form#chatForm {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    input[type="file"],
+    input[type="text"] {
+        flex: 1;
+        padding: 0.8rem;
+        border: 1.5px solid #ccc;
+        border-radius: 8px;
+        font-size: 1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    button {
+        background: #2e7590;
+        color: white;
+        padding: 0.8rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.3s, transform 0.2s;
+        font-size: 1rem;
+    }
+
+    button:hover {
+        background: #225c72;
+        transform: scale(1.02);
+    }
+</style>
+
+<div class="image-chat-container">
+    <div class="image-viewer">
+        <form id="uploadForm" action="{% url 'upload_image' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" name="file" accept="image/*" required>
+            <button type="submit">Analyser l'Image</button>
+        </form>
+        <div class="image-preview" id="imagePreview">
+            <p>Prévisualisation de l'image</p>
+        </div>
+    </div>
+
+    <div class="chat-box">
+        <h3>Chat avec l'Analyse</h3>
+        <div id="chatBox"></div>
+        <form id="chatForm" action="{% url 'ask_question' %}" method="post">
+            {% csrf_token %}
+            <input type="text" id="question" name="question" placeholder="Posez une question..." required>
+            <button type="submit">Envoyer</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const uploadForm = document.getElementById("uploadForm");
+    const imagePreview = document.getElementById("imagePreview");
+    const chatBox = document.getElementById("chatBox");
+    const chatForm = document.getElementById("chatForm");
+    function typeWriterEffect(element, text, speed = 50) {
+    let index = 0;
+    const interval = setInterval(() => {
+        if (index < text.length) {
+            element.textContent += text[index];
+            index++;
+        } else {
+            clearInterval(interval); 
+        }
+    }, speed);
+}
+
+
+let context = ""; // Contexte pour les questions de suivi
+
+uploadForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(uploadForm);
+    const file = formData.get("file");
+
+    // Prévisualisation de l'image
+    if (file) {
+        const fileURL = URL.createObjectURL(file);
+        imagePreview.innerHTML = `<img src="${fileURL}" style="max-width: 100%; max-height: 100%;">`;
+    }
+
+    try {
+        const response = await fetch("{% url 'upload_image' %}", {
+            method: "POST",
+            body: formData,
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}"
+            }
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+            // Créer un élément pour afficher la réponse dans le chat
+            const botMessage = document.createElement("div");
+            botMessage.classList.add("message", "bot-message");
+            botMessage.innerHTML = `🤖 : <span class="bot-text"></span>`;
+            chatBox.appendChild(botMessage);
+
+            // Sauvegarder le contexte initial
+            context = data.explanation;
+
+            // Utiliser l'effet de machine à écrire pour afficher la réponse
+            typeWriterEffect(botMessage, data.explanation, 50);
+
+            // Faire défiler le chat vers le bas
+            chatBox.scrollTop = chatBox.scrollHeight;
+        } else {
+            console.error(data);
+        }
+    } catch (error) {
+        console.error("Erreur réseau :", error);
+    }
+});
+
+chatForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const questionInput = document.getElementById("question");
+    const question = questionInput.value.trim();
+
+    if (!question) return;
+
+    // Ajouter la question au chat
+    const userMessage = document.createElement("div");
+    userMessage.classList.add("message", "user-message");
+    userMessage.textContent = `👤 : ${question}`;
+    chatBox.appendChild(userMessage);
+
+    questionInput.value = "";
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    try {
+        const response = await fetch("http://127.0.0.1:8003/follow_up/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ question, context }),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            const botMessage = document.createElement("div");
+            botMessage.classList.add("message", "bot-message");
+            
+            botMessage.innerHTML = `🤖 : <span class="bot-text"></span>`;
+            chatBox.appendChild(botMessage);
+
+            // Trouver l'élément de texte dynamique
+            const botTextElement = botMessage.querySelector(".bot-text");
+
+            // Mettre à jour le contexte avec la nouvelle réponse
+            context += `\n\n${data.response}`;
+
+            // Utiliser l'effet de machine à écrire pour afficher la réponse
+            typeWriterEffect(botTextElement, data.response, 50);
+
+            chatBox.scrollTop = chatBox.scrollHeight;
+        } else {
+            console.error(data);
+        }
+    } catch (error) {
+        console.error("Erreur réseau :", error);
+    }
+});
+
+
+
+</script>
+
+{% endblock %}

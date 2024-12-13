@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<title>Mon Profil</title>
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #eef8fc;
+        margin: 0;
+        padding: 0;
+    }
+    .profile-wrapper {
+        max-width: 1100px;
+        margin: 40px auto;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        display: flex;
+        gap: 30px;
+        background-color: #eef8fc; 
+        background-image: url("{% static 'images/Profile.jpg' %}");
+        color: #333; 
+    }
+    .profile-info-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        flex: 1;
+        padding: 25px;
+        border-radius: 8px;
+    }
+    .profile-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .profile-info h1 {
+        font-size: 26px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 10px;
+    }
+    .profile-info p {
+        font-size: 16px;
+        line-height: 1.6;
+        color: #555; /* Texte légèrement plus clair pour une meilleure lisibilité */
+        margin: 5px 0;
+    }
+    .profile-info strong {
+        font-weight: bold;
+        color: #333;
+    }
+    .profile-image {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        background-color: #ffffff;
+    }
+    .profile-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .btn-container {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: auto;
+    }
+    .btn {
+        background-color: #000;
+        color: #fff;
+        font-size: 16px;
+        font-weight: bold;
+        padding: 12px 25px;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    }
+    .btn:hover {
+        background-color: #2e7590;
+        transform: translateY(-3px);
+    }
+    .help-link {
+        text-align: center;
+        margin-top: 10px;
+        font-size: 18px;
+        color: #333;
+    }
+    @media (max-width: 768px) {
+        .profile-wrapper {
+            flex-direction: column;
+            padding: 20px;
+        }
+        .profile-image {
+            width: 140px;
+            height: 140px;
+        }
+        .btn {
+            width: 100%;
+            margin-top: 10px;
+        }
+    }
+</style>
+
+
+<div class="profile-wrapper">
+    <div class="profile-info-wrapper">
+        <div class="profile-image">
+            {% if doctor_image %}
+                <img src="http://127.0.0.1:8000{{ doctor_image }}" alt="Photo du doctor">
+            {% else %}
+                <p>Aucune image disponible</p>
+            {% endif %}
+        </div>
+        
+        <div class="profile-info">
+            <h1>Profil du Docteur</h1>
+            <p><strong>Nom :</strong> {{ doctor_name }}</p>
+            <p><strong>Email :</strong> {{ doctor_email }}</p>
+            <p><strong>Numéro de Licence :</strong> {{ doctor_licence }}</p>
+            <p><strong>Abonnement actuel :</strong> {{ doctor_subscription|title }}</p>
+        </div>
+       
+        <div class="btn-container">
+            <a href="{% url 'update_doctor_profile' %}" class="btn">Update</a>
+        </div>
+        
+    </div>
+</div>
+
+    
+</div>
+{% endblock %}

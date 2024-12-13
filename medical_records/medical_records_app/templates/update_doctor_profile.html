@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+     select.form-control {
+        background-color: #eef8fc;
+        border: 1px solid #ccc;
+        padding: 10px;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+</style>
+<title>Mettre à jour mes informations</title>
+<div class="container">
+    <h1>Mettre à jour mes informations</h1>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="nom">Nom</label>
+            <input type="text" id="nom" name="nom" class="form-control" value="{{ doctor.nom }}" required>
+        </div>
+        <div class="form-group">
+            <label for="prenom">Prénom</label>
+            <input type="text" id="prenom" name="prenom" class="form-control" value="{{ doctor.prenom }}" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" class="form-control" value="{{ doctor.email }}" required>
+        </div>
+        <div class="form-group">
+            <label for="numero_licence">Numéro de Licence</label>
+            <input type="text" id="numero_licence" name="numero_licence" class="form-control" value="{{ doctor.numero_licence }}" required>
+        </div>
+        <div class="form-group">
+            <label for="subscription">Abonnement</label>
+            <select id="subscription" name="subscription" class="form-control">
+                <option value="basic" {% if doctor.subscription == "basic" %}selected{% endif %}>Basic - $29.99/month</option>
+                <option value="pro" {% if doctor.subscription == "pro" %}selected{% endif %}>Pro - $69.99/month</option>
+                <option value="enterprise" {% if doctor.subscription == "enterprise" %}selected{% endif %}>Enterprise - $119.99/month</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="image">Photo</label>
+            <input type="file" id="image" name="image" class="form-control">
+        </div>
+        <div class="form-group">
+            <label for="voice_recording">Enregistrement vocal</label>
+            <input type="file" id="voice_recording" name="voice_recording" class="form-control">
+        </div>
+        <button type="submit" class="btn btn-primary">Mettre à jour</button>
+        <a href="{% url 'doctor_profile' %}" class="btn btn-secondary">Annuler</a>
+    </form>
+</div>
+<style>
+    .container {
+        max-width: 600px;
+        margin: 40px auto;
+        background-color: #eef8fc;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 24px;
+        color: #333;
+    }
+    .btn {
+        margin-top: 10px;
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+    .btn-primary {
+        background-color: #2e7590;
+        color: white;
+        border: none;
+    }
+    .btn-primary:hover {
+        background-color: #1f4d62;
+    }
+    .btn-secondary {
+        background-color: #ccc;
+        color: #333;
+        border: none;
+    }
+    .btn-secondary:hover {
+        background-color: #aaa;
+    }
+</style>
+{% endblock %}

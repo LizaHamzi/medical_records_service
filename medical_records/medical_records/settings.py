@@ -79,6 +79,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'medical_records_app.context_processors.user_subscription',
+
             ],
         },
     },
@@ -133,8 +135,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # BASE_DIR pointe vers la racine du projet
-
+MEDIA_ROOT = r'C:\Users\aziz\OneDrive - Institut Teccart\Bureau\medical_project\medical_application\media'
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [

@@ -1,0 +1,305 @@
+{% extends "base.html" %}
+{% block title %}PDF Chat{% endblock %}
+
+{% block content %}
+<style>
+    .pdf-chat-container {
+        display: flex;
+        width: 100%;
+        margin: 2rem auto;
+        height: 600px;
+        background: linear-gradient(to bottom, #ffffff, #f1f1f1);
+        border-radius: 10px;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        font-family: Arial, sans-serif;
+    }
+
+    .pdf-viewer {
+        flex: 1.2;
+        padding: 1rem;
+        background: #f9f9f9;
+        border-right: 2px solid #ddd;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+    }
+
+    #pdfViewer {
+        display: none;
+        border: 2px solid #ccc;
+        margin-top: 1rem;
+        background: #ffffff;
+        width: 100%;
+        height: calc(100% - 4rem);
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 1rem;
+    }
+
+    .chat-box {
+        flex: 1.8;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        background: #ffffff;
+    }
+
+    #chatBox {
+        flex: 1;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        padding: 1rem;
+        overflow-y: auto;
+        margin-bottom: 1rem;
+        background: #f9f9f9;
+    }
+
+    #chatBox div {
+        margin-bottom: 0.5rem;
+        padding: 0.8rem;
+        border-radius: 8px;
+        font-size: 1rem;
+    }
+
+    #chatBox .user-message {
+        background: #dbeeff;
+        align-self: flex-end;
+        font-weight: bold;
+    }
+
+    #chatBox .bot-message {
+        background: #eef1f5;
+        align-self: flex-start;
+        font-weight: bold;
+    }
+
+    form#chatForm {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    input[type="file"],
+    input[type="text"] {
+        flex: 1;
+        padding: 0.8rem;
+        border: 1.5px solid #ccc;
+        border-radius: 8px;
+        font-size: 1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    button {
+        background: #2e7590;
+        color: white;
+        padding: 0.8rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.3s, transform 0.2s;
+        font-size: 1rem;
+    }
+
+    button:hover {
+        background: #225c72;
+        transform: scale(1.02);
+    }
+
+    .alert {
+        position: fixed;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #ffffff;
+        color: #1e4d5f;
+        border: 1px solid #2e7590;
+        border-radius: 8px;
+        padding: 1rem;
+        font-size: 1rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        z-index: 1000;
+    }
+
+    .alert button {
+        background-color: #2e7590;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .alert button:hover {
+        background-color: #225c72;
+    }
+</style>
+
+<div class="pdf-chat-container">
+    <div class="pdf-viewer">
+        <form id="uploadForm" action="{% url 'upload_pdf' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" name="file" accept=".pdf" required>
+            <button type="submit">Charger le PDF</button>
+        </form>
+        <div id="pdfViewer"></div>
+    </div>
+
+    <div class="chat-box">
+        <h3>Chat avec votre PDF</h3>
+        <div id="chatBox"></div>
+        <form id="chatForm" action="{% url 'ask_question' %}" method="post">
+            {% csrf_token %}
+            <input type="text" id="question" name="question" placeholder="Posez une question..." required>
+            <button type="submit">Envoyer</button>
+        </form>
+    </div>
+</div>
+
+<div id="customAlert" class="alert" style="display: none;">
+    <span id="alertMessage"></span>
+    <button onclick="closeAlert()">Fermer</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.15.349/pdf.min.js"></script>
+<script>
+    const uploadForm = document.getElementById("uploadForm");
+    const pdfViewer = document.getElementById("pdfViewer");
+    const chatBox = document.getElementById("chatBox");
+    const chatForm = document.getElementById("chatForm");
+
+    function showAlert(message) {
+        const alertDiv = document.getElementById("customAlert");
+        const alertMessage = document.getElementById("alertMessage");
+        alertMessage.textContent = message;
+        alertDiv.style.display = "block";
+    }
+
+    function closeAlert() {
+        const alertDiv = document.getElementById("customAlert");
+        alertDiv.style.display = "none";
+    }
+
+    uploadForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = new FormData(uploadForm);
+        const file = formData.get("file");
+
+        if (file) {
+            displayPDF(file);
+        }
+
+        try {
+            const response = await fetch("{% url 'upload_pdf' %}", { 
+                method: "POST", 
+                body: formData,
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}"
+                }
+            });
+            if (response.ok) {
+                showAlert("Document analysé avec succès ! Vous pouvez maintenant chatter.");
+            } else {
+                const errorData = await response.json();
+                showAlert(`Erreur lors de l'analyse du PDF : ${errorData.error || "Erreur inconnue"}`);
+            }
+        } catch (error) {
+            console.error("Erreur réseau :", error);
+            showAlert("Erreur réseau. Veuillez réessayer.");
+        }
+    });
+
+    const displayPDF = (file) => {
+        const fileURL = URL.createObjectURL(file);
+        const pdfjsLib = window['pdfjs-dist/build/pdf'];
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.15.349/pdf.worker.min.js';
+
+        pdfjsLib.getDocument(fileURL).promise.then((pdf) => {
+            pdfViewer.style.display = "block";
+            pdfViewer.innerHTML = "";
+
+            for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+                pdf.getPage(pageNumber).then((page) => {
+                    const viewport = page.getViewport({ scale: 1.0 });
+                    const canvas = document.createElement("canvas");
+                    const context = canvas.getContext("2d");
+
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+                    canvas.style.marginBottom = "1rem";
+                    pdfViewer.appendChild(canvas);
+
+                    page.render({
+                        canvasContext: context,
+                        viewport: viewport,
+                    });
+                });
+            }
+        });
+    };
+
+    chatForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const questionInput = document.getElementById("question");
+    const question = questionInput.value.trim();
+
+    if (!question) {
+        showAlert("Veuillez poser une question valide.");
+        return;
+    }
+
+    // Ajouter la question de l'utilisateur dans le chat
+    const userMessage = document.createElement("div");
+    userMessage.classList.add("message", "user-message");
+    userMessage.innerHTML = `<div>👤 : ${question}</div>`;
+    chatBox.appendChild(userMessage);
+
+    // Vider le champ d'entrée
+    questionInput.value = "";
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    try {
+        const response = await fetch("{% url 'ask_question' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify({ question }),
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            displayResponseCharacterByCharacter(`🤖 : ${data.response || "Aucune réponse trouvée"}`);
+        } else {
+            const errorData = await response.json();
+            console.error("Erreur du serveur :", errorData);
+            showAlert(`Erreur lors de la récupération de la réponse : ${JSON.stringify(errorData)}`);
+        }
+    } catch (error) {
+        console.error("Erreur réseau :", error);
+        showAlert("Erreur réseau. Veuillez réessayer.");
+    }
+});
+
+const displayResponseCharacterByCharacter = async (responseText) => {
+    const botMessage = document.createElement("div");
+    botMessage.classList.add("message", "bot-message");
+    chatBox.appendChild(botMessage);
+
+    for (let char of responseText) {
+        botMessage.innerHTML += char;
+        await new Promise((resolve) => setTimeout(resolve, 50)); // 50ms par caractère
+    }
+    chatBox.scrollTop = chatBox.scrollHeight;
+};
+
+</script>
+
+{% endblock %}

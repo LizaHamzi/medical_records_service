@@ -1,3 +1,4 @@
+<!-- auth_app/templates/base.html -->
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -7,90 +8,82 @@
     <title>{% block title %}Medical Application{% endblock %}</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
-        /* Global Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-
+        /* Couleurs de base */
         body {
+            background-color: #eef8fc;
             font-family: Arial, sans-serif;
-            background-color: #f5f5dc;
             color: #333;
+            margin: 0;
             display: flex;
             flex-direction: column;
+            min-height: 120vh;
         }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 15px;
-        }
-
-        main {
-            flex: 1;
-        }
-
-        /* Navbar Styles */
-        header {
-            background: transparent;
-            padding: 10px 40px; 
-        }
-
-        nav ul {
-            list-style: none;
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            padding: 0;
-        }
-
-        nav ul li {
-            display: inline-block;
-            margin-right: 10px; /* Reduce spacing between items */
-        }
-
-        nav ul li:last-child {
-            margin-right: 0; /* No margin on the last item */
-        }
-
-        nav ul li a {
-            text-decoration: none;
-            color: #333;
-            font-size: 18px;
-            padding: 8px 12px;
-            transition: all 0.3s ease;
-        }
-
-        nav ul li a:hover {
-            color: #000;
-            text-decoration: underline;
-        }
-
-        .portal-btn {
+    
+        /* Navbar */
+        .navbar {
             background-color: #333;
-            padding: 8px 16px;
-            border-radius: 4px;
+            padding: 1rem;
             color: white;
+            display: flex;
+            justify-content: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
-
-        .portal-btn:hover {
-            background-color: #000;
-            color: #fff;
+    
+        .navbar-container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-
-        /* Footer */
-        footer {
+    
+        .navbar .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+    
+        .navbar .logo:hover {
+            color: #4c9ab9;
+        }
+    
+        .nav-links a {
+            color: white;
+            margin: 0 0.5rem;
+            text-decoration: none;
+            font-size: 1rem;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+    
+        .nav-links a:hover {
+            color: #4c9ab9;
+        }
+    
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -5px;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background-color: #4c9ab9;
+            transition: width 0.3s ease;
+        }
+    
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+         /* Footer */
+         footer {
             background-color: #333;
             color: #fff;
-            padding: 20px;
+            padding: 1px;
             text-align: center;
             margin-top: auto;
         }
@@ -100,56 +93,68 @@
         }
 
         footer p {
-            margin-top: 10px;
+           
             font-size: 14px;
         }
+        .nav-links a.disabled {
+    pointer-events: none;
+    color: #ccc;
+}
+
     </style>
-</head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    
+        
+    </head>
+    
+
 <body>
 
     <!-- Header -->
     <header>
-        <div class="container">
-            <nav>
-                <ul>
-                    <li><a href="http://localhost:8000/">Home</a></li>
-                    <li><a href="http://localhost:8000/">About</a></li>
-                    <li><a href="http://localhost:8000/">Services</a></li>
-                    <li><a href="http://localhost:8000/">Career</a></li>
-                    <li><a href="http://localhost:8000/">FAQ</a></li>
-                    <li><a href="http://localhost:8000/">Contact</a></li>
-                    <li><a href="http://localhost:8000/" class="portal-btn">DOCTOR PORTAL</a></li>
-                    <li><a href="http://localhost:8000/">Français</a></li>
-                    <li><a href="http://localhost:8000/auth/login">Logout</a></li>
-                </ul>
-            </nav>
+        <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="" class="logo">DMC AI</a>
+            <div class="nav-links">
+                <a href="http://localhost:8000/">Home</a>
+                <a href="{% url 'doctor_profile' %}">Profil</a>
+                <a href="{% url 'doctor_medical_record_list' %}">Records</a>
+            
+                {% if user_subscription == 'pro' or user_subscription == 'enterprise' %}
+                    <a href="{% url 'pdf_chat_page' %}">PDFChat</a>
+                {% endif %}
+            
+                {% if user_subscription == 'enterprise' %}
+                    <a href="{% url 'analyze_image_view' %}">IRM Analyzer</a>
+                    <a href="http://localhost:8004/">Image Analyzer</a>
+                {% endif %}
+            
+                <a href="#">English</a>
+                <a href="http://localhost:8000/auth/login/">Logout</a>
+            </div>
+            
+            
         </div>
+    </nav>
     </header>
 
     <!-- Main content -->
     <main>
         {% block content %}
         <!-- Content from other pages will be included here -->
-        {% if messages %}
-            <div class="messages">
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
         {% endblock %}
     </main>
 
     <!-- Footer -->
-    <footer>
+    <footer id="contact">
         <h3>Contact Us</h3>
         <p>Email: info@medicalapp.com</p>
         <p>Phone: (123) 456-7890</p>
         <p>Business Hours: Monday - Friday: 8am - 5pm</p>
         <p>Saturday: 9am - 1pm</p>
     </footer>
-
+    
 </body>
 </html>
